@@ -34,7 +34,7 @@
       overflow: hidden;
     }
 
-    #stage::before {
+    #stage.zoo-mode::before {
       content: "";
       position: absolute;
       inset: 0;
@@ -330,10 +330,10 @@
         <div class="zoo-row">ðŸ¯ ðŸ° ðŸµ ðŸ¼</div>
       </div>
       <div id="countdown-overlay">3</div>
-      <div id="boss-fish">ðŸ¦‘</div>
+      <div id="boss-fish">&#129425;</div>
 
       <div id="victory-modal">
-        <div style="font-size: 100px;">ðŸ†</div>
+        <div style="font-size: 100px;">&#127942;</div>
         <h2>GREAT JOB!</h2>
         <p style="font-size: 24px;">Calibration score: <b id="final-score-display">--</b>%</p>
         <button onclick="closeVictory()" style="padding: 15px 40px; background: #ffd700; border: none; border-radius: 20px; font-weight: bold; cursor: pointer;">WATCH EPISODE</button>
@@ -439,7 +439,7 @@
   const calibrationAnimals = ["&#128047;", "&#128048;", "&#128053;", "&#128056;", "&#128060;", "&#129409;", "&#128040;", "&#128054;", "&#128049;"];
   const validationAnimals = ["&#129418;", "&#128046;", "&#128055;", "&#128057;", "&#128059;"];
   const refinementAnimals = ["&#128047;", "&#128048;", "&#128053;", "&#128060;", "&#129409;"];
-  const bushEmoji = "&#127807;";
+  const bushEmoji = "&#127795;";
   const calibrationSampleCount = 6;
   const calibrationSampleDelayMs = 45;
   const validationDurationMs = 350;
@@ -764,6 +764,7 @@
 
   window.initExperience = async function () {
     document.getElementById("overlay").style.display = "none";
+    document.getElementById("stage").classList.add("zoo-mode");
 
     await webgazer
       .setRegression("ridge")
@@ -1119,6 +1120,7 @@
   window.closeVictory = function () {
     document.getElementById("victory-modal").style.display = "none";
     document.getElementById("game-area").style.display = "none";
+    document.getElementById("stage").classList.remove("zoo-mode");
     document.getElementById("video-area").style.display = "block";
 
     if (window.webgazer) {
