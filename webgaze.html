@@ -314,9 +314,9 @@
   <span>SYM: <span id="dbgSym">--</span></span>
   <span>CAM: <span id="cam-recording-status" class="status-off">IDLE</span></span>
   <span style="border-left: 1px solid #666; padding-left: 10px;">
-    MANUAL: <span id="manual-status" class="status-on">ENGAGED (â†‘)</span>
+    MANUAL: <span id="manual-status" class="status-on">ENGAGED (&uarr;)</span>
   </span>
-  <button onclick="terminateSession()" style="margin-left:auto; cursor:pointer; background:#ff4444; color:white; border:none; padding:4px 12px; border-radius:4px; font-weight:bold;">â¹ Stop & Save</button>
+  <button onclick="terminateSession()" style="margin-left:auto; cursor:pointer; background:#ff4444; color:white; border:none; padding:4px 12px; border-radius:4px; font-weight:bold;">&#9209; Stop & Save</button>
   <button id="stop-webcam-btn" onclick="stopWebcamRecording()" style="display:none; cursor:pointer; background:#ff9800; color:white; border:none; padding:4px 12px; border-radius:4px; font-weight:bold;">Stop Webcam</button>
 </div>
 
@@ -443,7 +443,7 @@
   const calibrationSampleCount = 6;
   const calibrationSampleDelayMs = 45;
   const validationDurationMs = 350;
-  const animalRevealDelayMs = 1000;
+  const animalRevealDelayMs = 1500;
 
   function setVideoDebug(msg) {
     document.getElementById("video-debug").innerText = msg;
@@ -667,11 +667,11 @@
 
     if (e.key === "ArrowUp") {
       manualEngagement = 1;
-      display.innerText = "ENGAGED (â†‘)";
+      display.innerHTML = "ENGAGED (&uarr;)";
       display.className = "status-on";
     } else if (e.key === "ArrowDown") {
       manualEngagement = 0;
-      display.innerText = "LOOKED AWAY (â†“)";
+      display.innerHTML = "LOOKED AWAY (&darr;)";
       display.className = "status-off";
     }
   });
