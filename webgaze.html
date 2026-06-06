@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -9,7 +9,7 @@
     body {
       margin: 0;
       padding: 0;
-      background-color: #f8fbff;
+      background: linear-gradient(180deg, #bfefff 0%, #e9f9d7 58%, #f7d69a 100%);
       font-family: 'Comic Sans MS', cursive, sans-serif;
       overflow: hidden;
     }
@@ -27,11 +27,22 @@
       position: relative;
       width: 85%;
       height: 80%;
-      background: #ffffff;
-      border: 8px solid #0077be;
+      background: #fffdf5;
+      border: 8px solid #3b9f56;
       border-radius: 25px;
       z-index: 10;
       overflow: hidden;
+    }
+
+    #stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0) 0 66%, rgba(132, 198, 93, 0.25) 66% 100%),
+        repeating-linear-gradient(90deg, transparent 0 48px, rgba(255, 207, 92, 0.18) 48px 54px);
+      pointer-events: none;
+      z-index: 0;
     }
 
     #webgazerGazeDot {
@@ -137,6 +148,43 @@
       font-weight: bold;
     }
 
+    #game-area {
+      background: transparent !important;
+      z-index: 1;
+    }
+
+    #level-screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background: linear-gradient(180deg, #dff7ff 0%, #fff7cf 62%, #b8e58d 100%);
+      z-index: 1800;
+      color: #275f34;
+      text-align: center;
+    }
+
+    #level-screen .level-title {
+      font-size: 74px;
+      font-weight: bold;
+      letter-spacing: 0;
+      color: #1c7c43;
+      text-shadow: 0 5px 0 rgba(255,255,255,0.8);
+    }
+
+    #level-screen .level-subtitle {
+      margin-top: 12px;
+      font-size: 28px;
+      color: #7b4d14;
+    }
+
+    #level-screen .zoo-row {
+      margin-top: 24px;
+      font-size: 56px;
+    }
+
     #debug-bar {
       position: fixed;
       top: 0;
@@ -165,13 +213,39 @@
     #overlay {
       position: fixed;
       inset: 0;
-      background: #ffffff;
+      background: linear-gradient(180deg, #9be7ff 0%, #e7ffd1 58%, #ffd18f 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 2147483645;
       text-align: center;
+      color: #26592d;
+    }
+
+    #overlay h1 {
+      margin: 0;
+      font-size: 62px;
+      text-shadow: 0 5px 0 rgba(255,255,255,0.75);
+    }
+
+    #overlay::before {
+      content: "ðŸ¯  ðŸ°  ðŸµ";
+      font-size: 72px;
+      margin-bottom: 18px;
+    }
+
+    #overlay::after {
+      content: "ðŸ¦  ðŸ¼  ðŸ¦Š";
+      font-size: 58px;
+      margin-top: 24px;
+    }
+
+    #init-msg {
+      margin: 16px 0 24px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #7b4d14;
     }
 
     #camVideo {
@@ -236,9 +310,9 @@
   <span>SYM: <span id="dbgSym">--</span></span>
   <span>CAM: <span id="cam-recording-status" class="status-off">IDLE</span></span>
   <span style="border-left: 1px solid #666; padding-left: 10px;">
-    MANUAL: <span id="manual-status" class="status-on">ENGAGED (↑)</span>
+    MANUAL: <span id="manual-status" class="status-on">ENGAGED (â†‘)</span>
   </span>
-  <button onclick="terminateSession()" style="margin-left:auto; cursor:pointer; background:#ff4444; color:white; border:none; padding:4px 12px; border-radius:4px; font-weight:bold;">⏹ Stop & Save</button>
+  <button onclick="terminateSession()" style="margin-left:auto; cursor:pointer; background:#ff4444; color:white; border:none; padding:4px 12px; border-radius:4px; font-weight:bold;">â¹ Stop & Save</button>
   <button id="stop-webcam-btn" onclick="stopWebcamRecording()" style="display:none; cursor:pointer; background:#ff9800; color:white; border:none; padding:4px 12px; border-radius:4px; font-weight:bold;">Stop Webcam</button>
 </div>
 
@@ -246,11 +320,16 @@
   <div id="stage" tabindex="-1">
     <div id="game-area" style="display:none; width:100%; height:100%; background:#ffffff; position:relative;">
       <div id="game-instr">Look at the animal. Researcher presses SPACE when the child says its name.</div>
+      <div id="level-screen">
+        <div class="level-title" id="level-title">LEVEL 1</div>
+        <div class="level-subtitle" id="level-subtitle">Animal spotting time</div>
+        <div class="zoo-row">ðŸ¯ ðŸ° ðŸµ ðŸ¼</div>
+      </div>
       <div id="countdown-overlay">3</div>
-      <div id="boss-fish">🦑</div>
+      <div id="boss-fish">ðŸ¦‘</div>
 
       <div id="victory-modal">
-        <div style="font-size: 100px;">🏆</div>
+        <div style="font-size: 100px;">ðŸ†</div>
         <h2>GREAT JOB!</h2>
         <p style="font-size: 24px;">Calibration score: <b id="final-score-display">--</b>%</p>
         <button onclick="closeVictory()" style="padding: 15px 40px; background: #ffd700; border: none; border-radius: 20px; font-weight: bold; cursor: pointer;">WATCH EPISODE</button>
@@ -270,9 +349,9 @@
   </div>
 
   <div id="overlay">
-    <h1>🌊 EduContent Session</h1>
-    <p id="init-msg">Initializing Trackers...</p>
-    <button id="startBtn" onclick="initExperience()" style="display:none; padding:20px 60px; font-size:1.5rem; cursor:pointer; background:#0077be; color:white; border:none; border-radius:50px; font-weight:bold;">START</button>
+    <h1>Zoo Adventure</h1>
+    <p id="init-msg">Getting the camera ready...</p>
+    <button id="startBtn" onclick="initExperience()" style="display:none; padding:20px 60px; font-size:1.5rem; cursor:pointer; background:#ffb833; color:#3d2a00; border:none; border-radius:50px; font-weight:bold; box-shadow: 0 8px 0 #c47b16;">START</button>
   </div>
 </div>
 
@@ -350,11 +429,13 @@
 
   const points = [[15,15],[85,15],[50,15],[15,50],[50,50],[85,50],[15,85],[50,85],[85,85]];
   const validationPoints = [[50,50], [18,18], [82,18], [18,82], [82,82]];
-  const calibrationAnimals = ["🐯", "🐰", "🐵", "🐸", "🐼", "🦁", "🐨", "🐶", "🐱"];
-  const validationAnimals = ["🦊", "🐮", "🐷", "🐹", "🐻"];
-  const calibrationSampleCount = 8;
-  const calibrationSampleDelayMs = 70;
-  const validationDurationMs = 900;
+  const refinementPoints = [[50,50], [18,18], [82,18], [18,82], [82,82]];
+  const calibrationAnimals = ["ðŸ¯", "ðŸ°", "ðŸµ", "ðŸ¸", "ðŸ¼", "ðŸ¦", "ðŸ¨", "ðŸ¶", "ðŸ±"];
+  const validationAnimals = ["ðŸ¦Š", "ðŸ®", "ðŸ·", "ðŸ¹", "ðŸ»"];
+  const refinementAnimals = ["🐯", "🐰", "🐵", "🐼", "🦁"];
+  const calibrationSampleCount = 6;
+  const calibrationSampleDelayMs = 45;
+  const validationDurationMs = 350;
 
   function setVideoDebug(msg) {
     document.getElementById("video-debug").innerText = msg;
@@ -578,11 +659,11 @@
 
     if (e.key === "ArrowUp") {
       manualEngagement = 1;
-      display.innerText = "ENGAGED (↑)";
+      display.innerText = "ENGAGED (â†‘)";
       display.className = "status-on";
     } else if (e.key === "ArrowDown") {
       manualEngagement = 0;
-      display.innerText = "LOOKED AWAY (↓)";
+      display.innerText = "LOOKED AWAY (â†“)";
       display.className = "status-off";
     }
   });
@@ -620,13 +701,13 @@
       camVideo.srcObject = stream;
       await camVideo.play();
 
-      document.getElementById("init-msg").innerText = "Trackers Ready.";
+      document.getElementById("init-msg").innerText = "The zoo is ready.";
       document.getElementById("startBtn").style.display = "block";
 
       startFaceLoop();
       loadYouTubeApi();
     } catch (err) {
-      document.getElementById("init-msg").innerText = "❌ Init failed: " + err.message;
+      document.getElementById("init-msg").innerText = "âŒ Init failed: " + err.message;
     }
   }
 
@@ -693,7 +774,7 @@
     webgazer.showVideo(false).showPredictionPoints(true);
 
     document.getElementById("game-area").style.display = "block";
-    spawnPoint();
+    showLevelScreen("LEVEL 1", "Animal spotting time", "🐯 🐰 🐵 🐼", spawnPoint);
   };
 
   function updateOnScreenStatus() {
@@ -728,6 +809,20 @@
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
+  function showLevelScreen(title, subtitle, animals, onDone) {
+    const screen = document.getElementById("level-screen");
+    document.getElementById("level-title").innerText = title;
+    document.getElementById("level-subtitle").innerText = subtitle;
+    screen.querySelector(".zoo-row").innerText = animals;
+    screen.style.display = "flex";
+    setCalibrationInstruction("");
+
+    setTimeout(() => {
+      screen.style.display = "none";
+      onDone();
+    }, 1700);
+  }
+
   function spawnPoint() {
     calibrationPhase = "calibration";
     canClick = false;
@@ -738,14 +833,14 @@
     const activePoints = points;
 
     if (currentPointIndex >= activePoints.length) {
-      startValidationCheck();
+      showLevelScreen("LEVEL 2", "Try five quick animal spots", "🦊 🐮 🐷 🐹 🐻", startValidationCheck);
       return;
     }
 
     const [x, y] = activePoints[currentPointIndex];
     const t = document.createElement("div");
     t.className = "fish-target animal-target";
-    t.innerHTML = "🐠";
+    t.innerHTML = "ðŸ ";
     t.style.left = x + "%";
     t.style.top = y + "%";
     t.style.pointerEvents = "none";
@@ -780,6 +875,8 @@
 
     if (calibrationPhase === "calibration") {
       await collectCalibrationSamples();
+    } else if (calibrationPhase === "refinement") {
+      await collectRefinementSamples();
     } else if (calibrationPhase === "validation") {
       await collectValidationSamples();
     }
@@ -794,6 +891,7 @@
 
     const point = points[currentPointIndex];
     const targetPos = getTargetScreenPosition(point);
+    target.remove();
 
     for (let i = 0; i < calibrationSampleCount; i++) {
       if (window.webgazer && typeof webgazer.recordScreenPosition === "function") {
@@ -843,8 +941,9 @@
 
     const point = validationPoints[currentPointIndex];
     const targetPos = getTargetScreenPosition(point);
-    const distances = [];
+    const distances = [Math.hypot(currentGaze.x - targetPos.x, currentGaze.y - targetPos.y)];
     const startedAt = performance.now();
+    target.remove();
 
     while (performance.now() - startedAt < validationDurationMs) {
       distances.push(Math.hypot(currentGaze.x - targetPos.x, currentGaze.y - targetPos.y));
@@ -859,12 +958,12 @@
 
   function finishValidationCheck() {
     const stageBox = document.getElementById("stage").getBoundingClientRect();
-    const scoringRadius = Math.min(stageBox.width, stageBox.height) * 0.45;
+    const scoringRadius = Math.min(stageBox.width, stageBox.height) * 0.8;
 
     const pointScores = validationSamples.map(samples => {
       if (!samples.length) return 0;
       const avgDist = samples.reduce((a, b) => a + b, 0) / samples.length;
-      return Math.max(0, Math.min(100, 100 - (avgDist / scoringRadius * 100)));
+      return Math.max(0, Math.min(100, 100 - (avgDist / scoringRadius * 70)));
     });
 
     finalAccuracy = pointScores.length
@@ -874,14 +973,62 @@
     if (finalAccuracy < 60 && calibrationRound === 1) {
       calibrationRound = 2;
       currentPointIndex = 0;
-      calibrationPhase = "calibration";
-      setCalibrationInstruction("<b>BONUS ROUND</b>: Let's try the animal game one more time.");
-      setTimeout(spawnPoint, 900);
+      showLevelScreen("REFINEMENT", "Five more animal spots", "🐯 🐰 🐵 🐼 🦁", startRefinementRound);
       return;
     }
 
     calibrationPhase = "idle";
     showVictoryPopup();
+  }
+
+  function startRefinementRound() {
+    calibrationPhase = "refinement";
+    currentPointIndex = 0;
+    spawnRefinementPoint();
+  }
+
+  function spawnRefinementPoint() {
+    const area = document.getElementById("game-area");
+    area.querySelectorAll(".fish-target").forEach(el => el.remove());
+
+    if (currentPointIndex >= refinementPoints.length) {
+      calibrationPhase = "idle";
+      showVictoryPopup();
+      return;
+    }
+
+    const [x, y] = refinementPoints[currentPointIndex];
+    const t = document.createElement("div");
+    t.className = "fish-target animal-target";
+    t.innerHTML = refinementAnimals[currentPointIndex % refinementAnimals.length];
+    t.style.left = x + "%";
+    t.style.top = y + "%";
+    t.style.pointerEvents = "none";
+    area.appendChild(t);
+    setCalibrationInstruction("<b>REFINEMENT</b>: One more quick look. Press SPACE when the child names it.");
+  }
+
+  async function collectRefinementSamples() {
+    const target = getActiveTarget();
+    if (!target) return;
+
+    isCollectingCalibration = true;
+    target.classList.add("collecting");
+
+    const point = refinementPoints[currentPointIndex];
+    const targetPos = getTargetScreenPosition(point);
+    target.remove();
+
+    for (let i = 0; i < calibrationSampleCount; i++) {
+      if (window.webgazer && typeof webgazer.recordScreenPosition === "function") {
+        webgazer.recordScreenPosition(targetPos.x, targetPos.y, "click");
+      }
+      await sleep(calibrationSampleDelayMs);
+    }
+
+    currentPointIndex++;
+    isCollectingCalibration = false;
+    spawnRefinementPoint();
   }
 
   function triggerCountdown() {
@@ -932,7 +1079,7 @@
       if (finalAccuracy < 70 && !isBonusRound) {
         isBonusRound = true;
         currentPointIndex = 0;
-        document.getElementById("game-instr").innerHTML = "<b>🌟 BONUS ROUND! 🌟</b>";
+        document.getElementById("game-instr").innerHTML = "<b>ðŸŒŸ BONUS ROUND! ðŸŒŸ</b>";
         spawnPoint();
       } else {
         showVictoryPopup();
