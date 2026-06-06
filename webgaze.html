@@ -71,6 +71,11 @@
       filter: drop-shadow(0 10px 18px rgba(0, 119, 190, 0.22));
     }
 
+    .animal-target.waiting {
+      font-size: 88px;
+      filter: drop-shadow(0 10px 18px rgba(55, 116, 54, 0.25));
+    }
+
     .animal-target.collecting {
       transform: translate(-50%, -50%) scale(1.16);
     }
@@ -229,15 +234,14 @@
       text-shadow: 0 5px 0 rgba(255,255,255,0.75);
     }
 
-    #overlay::before {
-      content: "ðŸ¯  ðŸ°  ðŸµ";
+    .welcome-animals {
       font-size: 72px;
       margin-bottom: 18px;
     }
 
-    #overlay::after {
-      content: "ðŸ¦  ðŸ¼  ðŸ¦Š";
+    .welcome-animals.bottom {
       font-size: 58px;
+      margin-bottom: 0;
       margin-top: 24px;
     }
 
@@ -349,9 +353,11 @@
   </div>
 
   <div id="overlay">
+    <div class="welcome-animals">&#128047; &#128048; &#128053;</div>
     <h1>Zoo Adventure</h1>
     <p id="init-msg">Getting the camera ready...</p>
     <button id="startBtn" onclick="initExperience()" style="display:none; padding:20px 60px; font-size:1.5rem; cursor:pointer; background:#ffb833; color:#3d2a00; border:none; border-radius:50px; font-weight:bold; box-shadow: 0 8px 0 #c47b16;">START</button>
+    <div class="welcome-animals bottom">&#129409; &#128060; &#129418;</div>
   </div>
 </div>
 
@@ -430,12 +436,14 @@
   const points = [[15,15],[85,15],[50,15],[15,50],[50,50],[85,50],[15,85],[50,85],[85,85]];
   const validationPoints = [[50,50], [18,18], [82,18], [18,82], [82,82]];
   const refinementPoints = [[50,50], [18,18], [82,18], [18,82], [82,82]];
-  const calibrationAnimals = ["ðŸ¯", "ðŸ°", "ðŸµ", "ðŸ¸", "ðŸ¼", "ðŸ¦", "ðŸ¨", "ðŸ¶", "ðŸ±"];
-  const validationAnimals = ["ðŸ¦Š", "ðŸ®", "ðŸ·", "ðŸ¹", "ðŸ»"];
-  const refinementAnimals = ["🐯", "🐰", "🐵", "🐼", "🦁"];
+  const calibrationAnimals = ["&#128047;", "&#128048;", "&#128053;", "&#128056;", "&#128060;", "&#129409;", "&#128040;", "&#128054;", "&#128049;"];
+  const validationAnimals = ["&#129418;", "&#128046;", "&#128055;", "&#128057;", "&#128059;"];
+  const refinementAnimals = ["&#128047;", "&#128048;", "&#128053;", "&#128060;", "&#129409;"];
+  const bushEmoji = "&#127807;";
   const calibrationSampleCount = 6;
   const calibrationSampleDelayMs = 45;
   const validationDurationMs = 350;
+  const animalRevealDelayMs = 1000;
 
   function setVideoDebug(msg) {
     document.getElementById("video-debug").innerText = msg;
@@ -774,7 +782,7 @@
     webgazer.showVideo(false).showPredictionPoints(true);
 
     document.getElementById("game-area").style.display = "block";
-    showLevelScreen("LEVEL 1", "Animal spotting time", "🐯 🐰 🐵 🐼", spawnPoint);
+    showLevelScreen("LEVEL 1", "Animal spotting time", "&#128047; &#128048; &#128053; &#128060;", spawnPoint);
   };
 
   function updateOnScreenStatus() {
@@ -813,7 +821,7 @@
     const screen = document.getElementById("level-screen");
     document.getElementById("level-title").innerText = title;
     document.getElementById("level-subtitle").innerText = subtitle;
-    screen.querySelector(".zoo-row").innerText = animals;
+    screen.querySelector(".zoo-row").innerHTML = animals;
     screen.style.display = "flex";
     setCalibrationInstruction("");
 
@@ -821,6 +829,22 @@
       screen.style.display = "none";
       onDone();
     }, 1700);
+  }
+
+  function revealAnimalAfterBush(target, animalHtml) {
+    target.classList.add("waiting");
+    target.dataset.ready = "0";
+    target.innerHTML = bushEmoji;
+
+    setTimeout(() => {
+      target.classList.remove("waiting");
+      target.innerHTML = animalHtml;
+      target.dataset.ready = "1";
+    }, animalRevealDelayMs);
+  }
+
+  function isTargetReady(target) {
+    return target && target.dataset.ready === "1";
   }
 
   function spawnPoint() {
@@ -833,19 +857,18 @@
     const activePoints = points;
 
     if (currentPointIndex >= activePoints.length) {
-      showLevelScreen("LEVEL 2", "Try five quick animal spots", "🦊 🐮 🐷 🐹 🐻", startValidationCheck);
+      showLevelScreen("LEVEL 2", "Try five quick animal spots", "&#129418; &#128046; &#128055; &#128057; &#128059;", startValidationCheck);
       return;
     }
 
     const [x, y] = activePoints[currentPointIndex];
     const t = document.createElement("div");
     t.className = "fish-target animal-target";
-    t.innerHTML = "ðŸ ";
     t.style.left = x + "%";
     t.style.top = y + "%";
     t.style.pointerEvents = "none";
-    t.innerHTML = calibrationAnimals[currentPointIndex % calibrationAnimals.length];
-    setCalibrationInstruction(`<b>${calibrationRound === 1 ? "CALIBRATION" : "BONUS ROUND"}</b>: Look at the animal. Press SPACE when the child names it.`);
+    revealAnimalAfterBush(t, calibrationAnimals[currentPointIndex % calibrationAnimals.length]);
+    setCalibrationInstruction(`<b>${calibrationRound === 1 ? "CALIBRATION" : "BONUS ROUND"}</b>: Look at the bush. Press SPACE after the animal pops out.`);
 
     setTimeout(() => {
       t.classList.remove("fish-red");
@@ -884,7 +907,7 @@
 
   async function collectCalibrationSamples() {
     const target = getActiveTarget();
-    if (!target) return;
+    if (!isTargetReady(target)) return;
 
     isCollectingCalibration = true;
     target.classList.add("collecting");
@@ -909,7 +932,7 @@
     calibrationPhase = "validation";
     currentPointIndex = 0;
     validationSamples = [];
-    setCalibrationInstruction("<b>NEXT LEVEL</b>: Look at each animal. Press SPACE when the child names it.");
+    setCalibrationInstruction("<b>NEXT LEVEL</b>: Look at the bush. Press SPACE after the animal pops out.");
     spawnValidationPoint();
   }
 
@@ -925,16 +948,16 @@
     const [x, y] = validationPoints[currentPointIndex];
     const t = document.createElement("div");
     t.className = "fish-target animal-target";
-    t.innerHTML = validationAnimals[currentPointIndex % validationAnimals.length];
     t.style.left = x + "%";
     t.style.top = y + "%";
     t.style.pointerEvents = "none";
+    revealAnimalAfterBush(t, validationAnimals[currentPointIndex % validationAnimals.length]);
     area.appendChild(t);
   }
 
   async function collectValidationSamples() {
     const target = getActiveTarget();
-    if (!target) return;
+    if (!isTargetReady(target)) return;
 
     isCollectingCalibration = true;
     target.classList.add("collecting");
@@ -973,7 +996,7 @@
     if (finalAccuracy < 60 && calibrationRound === 1) {
       calibrationRound = 2;
       currentPointIndex = 0;
-      showLevelScreen("REFINEMENT", "Five more animal spots", "🐯 🐰 🐵 🐼 🦁", startRefinementRound);
+      showLevelScreen("REFINEMENT", "Five more animal spots", "&#128047; &#128048; &#128053; &#128060; &#129409;", startRefinementRound);
       return;
     }
 
@@ -1000,17 +1023,17 @@
     const [x, y] = refinementPoints[currentPointIndex];
     const t = document.createElement("div");
     t.className = "fish-target animal-target";
-    t.innerHTML = refinementAnimals[currentPointIndex % refinementAnimals.length];
     t.style.left = x + "%";
     t.style.top = y + "%";
     t.style.pointerEvents = "none";
+    revealAnimalAfterBush(t, refinementAnimals[currentPointIndex % refinementAnimals.length]);
     area.appendChild(t);
-    setCalibrationInstruction("<b>REFINEMENT</b>: One more quick look. Press SPACE when the child names it.");
+    setCalibrationInstruction("<b>REFINEMENT</b>: Look at the bush. Press SPACE after the animal pops out.");
   }
 
   async function collectRefinementSamples() {
     const target = getActiveTarget();
-    if (!target) return;
+    if (!isTargetReady(target)) return;
 
     isCollectingCalibration = true;
     target.classList.add("collecting");
