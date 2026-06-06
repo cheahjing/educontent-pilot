@@ -422,7 +422,7 @@
       <div id="victory-modal">
         <div style="font-size: 100px;">&#127942;</div>
         <h2>GREAT JOB!</h2>
-        <p style="font-size: 24px;">Calibration score: <b id="final-score-display">--</b>%</p>
+        <p style="font-size: 24px;">Your Score: <b id="final-score-display">--</b>%</p>
         <button onclick="closeVictory()" style="padding: 15px 40px; background: #ffd700; border: none; border-radius: 20px; font-weight: bold; cursor: pointer;">WATCH EPISODE</button>
       </div>
     </div>
@@ -1228,7 +1228,7 @@
     if (finalAccuracy < 60 && calibrationRound === 1) {
       calibrationRound = 2;
       currentPointIndex = 0;
-      showLevelScreen("REFINEMENT", "Five more animal spots", "&#128047; &#128048; &#128053; &#128060; &#129409;", startRefinementRound);
+      showLevelScreen("BONUS ROUND", "Five more animal spots", "&#128047; &#128048; &#128053; &#128060; &#129409;", startRefinementRound);
       return;
     }
 
@@ -1260,7 +1260,7 @@
     t.style.pointerEvents = "none";
     revealAnimalAfterBush(t, refinementAnimals[currentPointIndex % refinementAnimals.length]);
     area.appendChild(t);
-    setCalibrationInstruction("<b>REFINEMENT</b>: Look at the bush. Press SPACE after the animal pops out.");
+    setCalibrationInstruction("<b>BONUS ROUND</b>: Look at the bush. Press SPACE after the animal pops out.");
   }
 
   async function collectRefinementSamples() {
