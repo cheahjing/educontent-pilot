@@ -256,6 +256,92 @@
       display: none;
     }
 
+    #camVideo.setup-preview {
+      display: block;
+      position: fixed;
+      left: 8vw;
+      top: 18vh;
+      width: 42vw;
+      max-width: 640px;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      transform: scaleX(-1);
+      border: 8px solid #3b9f56;
+      border-radius: 18px;
+      box-shadow: 0 18px 40px rgba(31, 88, 45, 0.25);
+      z-index: 2147483646;
+      background: #111;
+    }
+
+    #camera-check-panel {
+      display: none;
+      position: fixed;
+      right: 8vw;
+      top: 18vh;
+      width: min(34vw, 460px);
+      min-width: 340px;
+      padding: 26px;
+      background: rgba(255, 253, 245, 0.96);
+      border: 6px solid #ffb833;
+      border-radius: 18px;
+      box-shadow: 0 18px 40px rgba(31, 88, 45, 0.22);
+      z-index: 2147483646;
+      text-align: left;
+      color: #275f34;
+    }
+
+    #camera-check-panel h2 {
+      margin: 0 0 14px;
+      font-size: 34px;
+      color: #1c7c43;
+      text-align: center;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 12px 0;
+      padding: 12px 14px;
+      background: #ffffff;
+      border: 2px solid #d9e9c9;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .check-status {
+      padding: 5px 10px;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .check-good { background: #2f9d55; }
+    .check-warn { background: #d68a00; }
+    .check-bad { background: #c7362f; }
+
+    #researcher-alert {
+      position: fixed;
+      left: 50%;
+      top: 46px;
+      transform: translateX(-50%);
+      display: none;
+      max-width: min(900px, 82vw);
+      padding: 10px 18px;
+      background: #fff5cc;
+      border: 3px solid #ffb833;
+      border-radius: 12px;
+      color: #5a3a00;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      z-index: 2147483646;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    }
+
     #video-loading-overlay {
       position: absolute;
       inset: 0;
@@ -319,6 +405,7 @@
   <button onclick="terminateSession()" style="margin-left:auto; cursor:pointer; background:#ff4444; color:white; border:none; padding:4px 12px; border-radius:4px; font-weight:bold;">&#9209; Stop & Save</button>
   <button id="stop-webcam-btn" onclick="stopWebcamRecording()" style="display:none; cursor:pointer; background:#ff9800; color:white; border:none; padding:4px 12px; border-radius:4px; font-weight:bold;">Stop Webcam</button>
 </div>
+<div id="researcher-alert"></div>
 
 <div id="app-viewport">
   <div id="stage" tabindex="-1">
@@ -327,7 +414,7 @@
       <div id="level-screen">
         <div class="level-title" id="level-title">LEVEL 1</div>
         <div class="level-subtitle" id="level-subtitle">Animal spotting time</div>
-        <div class="zoo-row">ðŸ¯ ðŸ° ðŸµ ðŸ¼</div>
+        <div class="zoo-row">&#128047; &#128048; &#128053; &#128060;</div>
       </div>
       <div id="countdown-overlay">3</div>
       <div id="boss-fish">&#129425;</div>
@@ -356,9 +443,27 @@
     <div class="welcome-animals">&#128047; &#128048; &#128053;</div>
     <h1>Zoo Adventure</h1>
     <p id="init-msg">Getting the camera ready...</p>
-    <button id="startBtn" onclick="initExperience()" style="display:none; padding:20px 60px; font-size:1.5rem; cursor:pointer; background:#ffb833; color:#3d2a00; border:none; border-radius:50px; font-weight:bold; box-shadow: 0 8px 0 #c47b16;">START</button>
+    <button id="startBtn" onclick="showCameraCheck()" style="display:none; padding:20px 60px; font-size:1.5rem; cursor:pointer; background:#ffb833; color:#3d2a00; border:none; border-radius:50px; font-weight:bold; box-shadow: 0 8px 0 #c47b16;">CHECK CAMERA</button>
     <div class="welcome-animals bottom">&#129409; &#128060; &#129418;</div>
   </div>
+</div>
+
+<div id="camera-check-panel">
+  <h2>Camera Check</h2>
+  <div class="check-row">
+    <span>Face position</span>
+    <span id="check-face" class="check-status check-bad">NO FACE</span>
+  </div>
+  <div class="check-row">
+    <span>Distance from laptop</span>
+    <span id="check-distance" class="check-status check-warn">CHECK</span>
+  </div>
+  <div class="check-row">
+    <span>Lighting</span>
+    <span id="check-light" class="check-status check-warn">CHECK</span>
+  </div>
+  <p id="check-advice" style="font-size:18px; line-height:1.35; color:#5a3a00; min-height:48px; margin:16px 0 20px;">Ask the child to sit comfortably and look at the screen.</p>
+  <button onclick="initExperience()" style="width:100%; padding:16px 24px; font-size:1.2rem; cursor:pointer; background:#3b9f56; color:white; border:none; border-radius:14px; font-weight:bold;">START ZOO</button>
 </div>
 
 <video id="camVideo" autoplay playsinline muted></video>
@@ -421,6 +526,9 @@
   let calibrationRound = 1;
   let isCollectingCalibration = false;
   let validationSamples = [];
+  let cameraBrightness = 0;
+  let lastBrightnessCheck = 0;
+  let sessionPhase = "welcome";
   let clickCount = 0;
   let canClick = false;
   let logInterval = null;
@@ -444,6 +552,10 @@
   const calibrationSampleDelayMs = 45;
   const validationDurationMs = 350;
   const animalRevealDelayMs = 1500;
+  const faceMinWidth = 95;
+  const faceMaxWidth = 260;
+  const lightMin = 55;
+  const lightMax = 205;
 
   function setVideoDebug(msg) {
     document.getElementById("video-debug").innerText = msg;
@@ -454,6 +566,111 @@
     const el = document.getElementById("cam-recording-status");
     el.innerText = label;
     el.className = isActive ? "status-on" : "status-off";
+  }
+
+  function setCheckStatus(id, label, statusClass) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerText = label;
+    el.className = `check-status ${statusClass}`;
+  }
+
+  function getCameraQualityMessages() {
+    const messages = [];
+
+    if (!faceState.detected) {
+      messages.push("Face not detected. Check that the child is visible to the camera.");
+    } else {
+      if (!faceState.centered) {
+        messages.push("Ask the child to sit in the middle of the camera frame.");
+      }
+      if (faceState.width < faceMinWidth) {
+        messages.push("Ask the child to move a little closer to the laptop.");
+      } else if (faceState.width > faceMaxWidth) {
+        messages.push("Ask the child to sit back a little.");
+      }
+    }
+
+    if (cameraBrightness > 0 && cameraBrightness < lightMin) {
+      messages.push("Lighting looks dim. Add light or face the child toward the light.");
+    } else if (cameraBrightness > lightMax) {
+      messages.push("Lighting looks too bright. Reduce glare or backlighting.");
+    }
+
+    return messages;
+  }
+
+  function updateCameraCheckUi() {
+    if (!faceState.detected) {
+      setCheckStatus("check-face", "NO FACE", "check-bad");
+      setCheckStatus("check-distance", "--", "check-warn");
+    } else {
+      setCheckStatus("check-face", faceState.centered ? "CENTERED" : "MOVE CENTER", faceState.centered ? "check-good" : "check-warn");
+
+      if (faceState.width < faceMinWidth) {
+        setCheckStatus("check-distance", "TOO FAR", "check-warn");
+      } else if (faceState.width > faceMaxWidth) {
+        setCheckStatus("check-distance", "TOO CLOSE", "check-warn");
+      } else {
+        setCheckStatus("check-distance", "GOOD", "check-good");
+      }
+    }
+
+    if (cameraBrightness === 0) {
+      setCheckStatus("check-light", "CHECK", "check-warn");
+    } else if (cameraBrightness < lightMin) {
+      setCheckStatus("check-light", "DIM", "check-warn");
+    } else if (cameraBrightness > lightMax) {
+      setCheckStatus("check-light", "BRIGHT", "check-warn");
+    } else {
+      setCheckStatus("check-light", "GOOD", "check-good");
+    }
+
+    const advice = document.getElementById("check-advice");
+    if (advice) {
+      const messages = getCameraQualityMessages();
+      advice.innerText = messages.length ? messages[0] : "Looks good. You can start the zoo activity.";
+    }
+
+    updateResearcherAlert();
+  }
+
+  function updateResearcherAlert() {
+    const alert = document.getElementById("researcher-alert");
+    if (!alert) return;
+
+    if (sessionPhase !== "calibration" && sessionPhase !== "video") {
+      alert.style.display = "none";
+      return;
+    }
+
+    const messages = getCameraQualityMessages();
+    if (!messages.length) {
+      alert.style.display = "none";
+      return;
+    }
+
+    alert.innerText = messages[0];
+    alert.style.display = "block";
+  }
+
+  function updateCameraBrightness(video) {
+    const now = performance.now();
+    if (now - lastBrightnessCheck < 500 || video.videoWidth === 0 || video.videoHeight === 0) return;
+    lastBrightnessCheck = now;
+
+    const canvas = updateCameraBrightness.canvas || (updateCameraBrightness.canvas = document.createElement("canvas"));
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    canvas.width = 80;
+    canvas.height = 60;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    let total = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      total += (data[i] * 0.299) + (data[i + 1] * 0.587) + (data[i + 2] * 0.114);
+    }
+    cameraBrightness = Math.round(total / (data.length / 4));
   }
 
   function restoreManualControlFocus() {
@@ -709,13 +926,13 @@
       camVideo.srcObject = stream;
       await camVideo.play();
 
-      document.getElementById("init-msg").innerText = "The zoo is ready.";
+      document.getElementById("init-msg").innerText = "Camera is ready.";
       document.getElementById("startBtn").style.display = "block";
 
       startFaceLoop();
       loadYouTubeApi();
     } catch (err) {
-      document.getElementById("init-msg").innerText = "âŒ Init failed: " + err.message;
+      document.getElementById("init-msg").innerText = "Init failed: " + err.message;
     }
   }
 
@@ -724,6 +941,7 @@
 
     function detect() {
       if (video.readyState >= 2 && faceDetector) {
+        updateCameraBrightness(video);
         const result = faceDetector.detectForVideo(video, performance.now());
         const detections = result?.detections || [];
 
@@ -754,6 +972,8 @@
           document.getElementById("dbgFace").innerText = "NO";
           document.getElementById("dbgSym").innerText = "--";
         }
+
+        updateCameraCheckUi();
       }
 
       requestAnimationFrame(detect);
@@ -762,9 +982,20 @@
     detect();
   }
 
+  window.showCameraCheck = function () {
+    sessionPhase = "setup";
+    document.getElementById("overlay").style.display = "none";
+    document.getElementById("camera-check-panel").style.display = "block";
+    document.getElementById("camVideo").classList.add("setup-preview");
+    updateCameraCheckUi();
+  };
+
   window.initExperience = async function () {
     document.getElementById("overlay").style.display = "none";
+    document.getElementById("camera-check-panel").style.display = "none";
+    document.getElementById("camVideo").classList.remove("setup-preview");
     document.getElementById("stage").classList.add("zoo-mode");
+    sessionPhase = "calibration";
 
     await webgazer
       .setRegression("ridge")
@@ -1103,7 +1334,7 @@
       if (finalAccuracy < 70 && !isBonusRound) {
         isBonusRound = true;
         currentPointIndex = 0;
-        document.getElementById("game-instr").innerHTML = "<b>ðŸŒŸ BONUS ROUND! ðŸŒŸ</b>";
+        document.getElementById("game-instr").innerHTML = "<b>BONUS ROUND!</b>";
         spawnPoint();
       } else {
         showVictoryPopup();
@@ -1122,6 +1353,8 @@
     document.getElementById("game-area").style.display = "none";
     document.getElementById("stage").classList.remove("zoo-mode");
     document.getElementById("video-area").style.display = "block";
+    sessionPhase = "video";
+    updateResearcherAlert();
 
     if (window.webgazer) {
       webgazer.showPredictionPoints(false);
@@ -1202,6 +1435,11 @@
   }
 
   window.terminateSession = function () {
+    sessionPhase = "ended";
+    document.getElementById("researcher-alert").style.display = "none";
+    document.getElementById("camera-check-panel").style.display = "none";
+    document.getElementById("camVideo").classList.remove("setup-preview");
+
     if (logInterval) {
       clearInterval(logInterval);
       logInterval = null;
