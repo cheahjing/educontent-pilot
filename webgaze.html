@@ -462,7 +462,7 @@
     <span>Lighting</span>
     <span id="check-light" class="check-status check-warn">CHECK</span>
   </div>
-  <p id="check-advice" style="font-size:18px; line-height:1.35; color:#5a3a00; min-height:48px; margin:16px 0 20px;">Ask the child to sit comfortably and look at the screen.</p>
+  <p id="check-advice" style="font-size:18px; line-height:1.35; color:#5a3a00; min-height:48px; margin:16px 0 20px;">Ask the child to sit comfortably and look at the screen. Recommended face size: 120-180 px wide and 120-130 px tall.</p>
   <button onclick="initExperience()" style="width:100%; padding:16px 24px; font-size:1.2rem; cursor:pointer; background:#3b9f56; color:white; border:none; border-radius:14px; font-weight:bold;">START ZOO</button>
 </div>
 
@@ -552,8 +552,10 @@
   const calibrationSampleDelayMs = 45;
   const validationDurationMs = 350;
   const animalRevealDelayMs = 1500;
-  const faceMinWidth = 95;
-  const faceMaxWidth = 260;
+  const faceMinWidth = 120;
+  const faceMaxWidth = 180;
+  const faceMinHeight = 120;
+  const faceMaxHeight = 130;
   const lightMin = 55;
   const lightMax = 205;
 
@@ -584,10 +586,10 @@
       if (!faceState.centered) {
         messages.push("Ask the child to sit in the middle of the camera frame.");
       }
-      if (faceState.width < faceMinWidth) {
-        messages.push("Ask the child to move a little closer to the laptop.");
-      } else if (faceState.width > faceMaxWidth) {
-        messages.push("Ask the child to sit back a little.");
+      if (faceState.width < faceMinWidth || faceState.height < faceMinHeight) {
+        messages.push("Ask the child to move a little closer to the laptop. Recommended face size: 120-180 px wide and 120-130 px tall.");
+      } else if (faceState.width > faceMaxWidth || faceState.height > faceMaxHeight) {
+        messages.push("Ask the child to sit back a little. Recommended face size: 120-180 px wide and 120-130 px tall.");
       }
     }
 
@@ -607,9 +609,9 @@
     } else {
       setCheckStatus("check-face", faceState.centered ? "CENTERED" : "MOVE CENTER", faceState.centered ? "check-good" : "check-warn");
 
-      if (faceState.width < faceMinWidth) {
+      if (faceState.width < faceMinWidth || faceState.height < faceMinHeight) {
         setCheckStatus("check-distance", "TOO FAR", "check-warn");
-      } else if (faceState.width > faceMaxWidth) {
+      } else if (faceState.width > faceMaxWidth || faceState.height > faceMaxHeight) {
         setCheckStatus("check-distance", "TOO CLOSE", "check-warn");
       } else {
         setCheckStatus("check-distance", "GOOD", "check-good");
@@ -629,7 +631,7 @@
     const advice = document.getElementById("check-advice");
     if (advice) {
       const messages = getCameraQualityMessages();
-      advice.innerText = messages.length ? messages[0] : "Looks good. You can start the zoo activity.";
+      advice.innerText = messages.length ? messages[0] : "Looks good. Face size is within the recommended range.";
     }
 
     updateResearcherAlert();
