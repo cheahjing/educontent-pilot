@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -48,6 +48,7 @@
     #webgazerGazeDot {
       z-index: 2147483647 !important;
       border: 2px solid white !important;
+      display: none !important;
     }
 
     .fish-target {
@@ -1013,7 +1014,7 @@
       webgazer.applyKalmanFilter(true);
     }
 
-    webgazer.showVideo(false).showPredictionPoints(true);
+    webgazer.showVideo(false).showPredictionPoints(false);
 
     document.getElementById("game-area").style.display = "block";
     showLevelScreen("LEVEL 1", "Animal spotting time", "&#128047; &#128048; &#128053; &#128060;", spawnPoint);
