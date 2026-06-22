@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>EduContent: Attention Tracker</title>
-  <script src="https://cdn.jsdelivr.net/npm/webgazer@2.1.1/dist/webgazer.min.js"></script>
+  <script 
+  src="https://cdn.jsdelivr.net/npm/webgazer@2.1.1/dist/webgazer.min.js" 
+  integrity="sha384-H4uW0w8z60p0N6h7O/7W9e+75qNqG55wN49N00N6p7O/7W9e+75qNqG55wN49N00" 
+  crossorigin="anonymous">
+  </script>
 
   <style>
     body {
@@ -917,7 +921,11 @@
           height: { ideal: 480 },
           frameRate: { ideal: 15, max: 15 }
         },
-        audio: false
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
       });
       cameraStream = stream;
 
